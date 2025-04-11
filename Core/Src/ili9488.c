@@ -359,6 +359,7 @@ void WaitLastData()
 		while(SPI1->SR & SPI_SR_BSY);
 
 }
+
 /*void ILI9488_SendData_Multi(uint16_t Colordata, uint32_t size)
 {
 	uint8_t colorL,colorH;
@@ -533,6 +534,7 @@ void scroll(uint16_t pixels)
 	ILI9488_SendData(pixels >> 8);
 	ILI9488_SendData(pixels);
 }
+
 void pushColor(uint16_t color)
 {
 	HAL_GPIO_WritePin(tftDC_GPIO, tftDC_PIN, GPIO_PIN_SET);
@@ -820,62 +822,101 @@ uint16_t color565(uint8_t r, uint8_t g, uint8_t b)
 }
 
 //11. Text printing functions
-void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size)
+//void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size)
+//{
+//	if(rotationNum == 1 || rotationNum ==3)
+//	{
+//		if((x >= ILI9488_TFTWIDTH)            || // Clip right
+//     (y >= ILI9488_TFTHEIGHT)           || // Clip bottom
+//     ((x + 6 * size - 1) < 0) || // Clip left
+//     ((y + 8 * size - 1) < 0))   // Clip top
+//    return;
+//	}
+//	else
+//	{
+//		if((y >= ILI9488_TFTWIDTH)            || // Clip right
+//     (x >= ILI9488_TFTHEIGHT)           || // Clip bottom
+//     ((y + 6 * size - 1) < 0) || // Clip left
+//     ((x + 8 * size - 1) < 0))   // Clip top
+//    return;
+//	}
+//
+//
+//  if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
+//
+//  for (int8_t i=0; i<6; i++ ) {
+//    uint8_t line;
+//    if (i == 5)
+//      line = 0x0;
+//    else
+//      line = pgm_read_byte(font1+(c*5)+i);
+//    for (int8_t j = 0; j<8; j++) {
+//      if (line & 0x1) {
+//        if (size == 1) // default size
+//        	drawPixel(x+i, y+j, color);
+//        else {  // big size
+//        	fillRect(x+(i*size), y+(j*size), size + x+(i*size), size+1 + y+(j*size), color);
+//        }
+//      }
+//      else if (bg != color) {
+//        if (size == 1) // default size
+//        	drawPixel(x+i, y+j, bg);
+//        else {  // big size
+//        	fillRect(x+i*size, y+j*size, size + x+i*size, size+1 + y+j*size, bg);
+//        }
+//      }
+//      line >>= 1;
+//    }
+//  }
+//}
+//==========================================================================
+// I revised the drawChar funciton so that it doesnt print out any color in the background
+//==========================================================================
+void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint8_t size)
 {
-	if(rotationNum == 1 || rotationNum ==3)
-	{
-		if((x >= ILI9488_TFTWIDTH)            || // Clip right
-     (y >= ILI9488_TFTHEIGHT)           || // Clip bottom
-     ((x + 6 * size - 1) < 0) || // Clip left
-     ((y + 8 * size - 1) < 0))   // Clip top
-    return;
-	}
-	else
-	{
-		if((y >= ILI9488_TFTWIDTH)            || // Clip right
-     (x >= ILI9488_TFTHEIGHT)           || // Clip bottom
-     ((y + 6 * size - 1) < 0) || // Clip left
-     ((x + 8 * size - 1) < 0))   // Clip top
-    return;
-	}
+  if (rotationNum == 1 || rotationNum == 3) {
+    if ((x >= ILI9488_TFTWIDTH) || (y >= ILI9488_TFTHEIGHT) ||
+        ((x + 6 * size - 1) < 0) || ((y + 8 * size - 1) < 0))
+      return;
+  } else {
+    if ((y >= ILI9488_TFTWIDTH) || (x >= ILI9488_TFTHEIGHT) ||
+        ((y + 6 * size - 1) < 0) || ((x + 8 * size - 1) < 0))
+      return;
+  }
 
+  if (!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
 
-  if(!_cp437 && (c >= 176)) c++; // Handle 'classic' charset behavior
-
-  for (int8_t i=0; i<6; i++ ) {
+  for (int8_t i = 0; i < 6; i++) {
     uint8_t line;
     if (i == 5)
       line = 0x0;
     else
-      line = pgm_read_byte(font1+(c*5)+i);
-    for (int8_t j = 0; j<8; j++) {
+      line = pgm_read_byte(font1 + (c * 5) + i);
+
+    for (int8_t j = 0; j < 8; j++) {
       if (line & 0x1) {
-        if (size == 1) // default size
-        	drawPixel(x+i, y+j, color);
-        else {  // big size
-        	fillRect(x+(i*size), y+(j*size), size + x+(i*size), size+1 + y+(j*size), color);
-        }
-      } else if (bg != color) {
-        if (size == 1) // default size
-        	drawPixel(x+i, y+j, bg);
-        else {  // big size
-        	fillRect(x+i*size, y+j*size, size + x+i*size, size+1 + y+j*size, bg);
+        if (size == 1) {
+          drawPixel(x + i, y + j, color);
+        } else {
+          fillRect(x + (i * size), y + (j * size), size, size, color);
         }
       }
       line >>= 1;
     }
   }
 }
-void ILI9488_printText(char text[], int16_t x, int16_t y, uint16_t color, uint16_t bg, uint8_t size)
+
+void ILI9488_printText(char text[], int16_t x, int16_t y, uint16_t color, uint8_t size)
 {
 	int16_t offset;
 	offset = size*6;
 
 	for(uint16_t i=0; i<40 && text[i]!=NULL; i++)
 	{
-		drawChar(x+(offset*i), y, text[i],color,bg,size);
+		drawChar(x+(offset*i), y, text[i],color,size);
 	}
 }
+
 void testLines(uint8_t color)
 {
 
@@ -955,13 +996,73 @@ void write16BitColor(uint16_t color)
 // ==========================================
 // ==========================================
 
-// Define cube colors
-#define CUBE_WHITE      ILI9488_WHITE
-#define CUBE_ORANGE     0xFD00      // Orange
-#define CUBE_GREEN      ILI9488_GREEN
-#define CUBE_RED        ILI9488_RED
-#define CUBE_BLUE       ILI9488_BLUE
-#define CUBE_YELLOW     ILI9488_YELLOW
+void drawMiniRubiksCube(int16_t x, int16_t y, uint16_t size) {
+    uint16_t colors[9] = {
+        ILI9488_RED, ILI9488_GREEN, ILI9488_BLUE,
+        ILI9488_YELLOW, ILI9488_WHITE, ILI9488_ORANGE,
+        ILI9488_CYAN, ILI9488_MAGENTA, ILI9488_DARKGREY
+    };
+
+    for (int row = 0; row < 3; row++) {
+        for (int col = 0; col < 3; col++) {
+            uint16_t color = colors[row * 3 + col];
+            int16_t px = x + col * (size + 1);
+            int16_t py = y + row * (size + 1);
+            fillRect(px, py, size, size, color);
+        }
+    }
+
+    // Optional: draw black lines between tiles
+    for (int i = 0; i <= 3; i++) {
+        // vertical lines
+        drawFastVLine(x + i * (size + 1) - 1, y, 3 * (size + 1) - 1, ILI9488_BLACK);
+        // horizontal lines
+        drawFastHLine(x, y + i * (size + 1) - 1, 3 * (size + 1) - 1, ILI9488_BLACK);
+    }
+}
+
+void drawHomeScreen() {
+    // Fill background
+    fillScreen(ILI9488_WHITE);
+
+    // Title Text (Centered)
+    ILI9488_printText("Rubik's Cube", 40, 20, ILI9488_BLUE, 3);
+    ILI9488_printText("Solver", 100, 60, ILI9488_RED, 3);
+
+    // Decorative line under title
+    drawFastHLine(30, 105, 260, ILI9488_BLACK);
+
+    // Game Mode Title Box
+    fillRect(10, 115, 300, 50, ILI9488_BLACK);
+    ILI9488_printText("Choose Your Game Mode", 25, 130, ILI9488_WHITE, 2);
+
+    // Option Boxes
+    int yStart = 190;
+    int boxHeight = 50;
+    int boxGap = 20;
+
+    // Speed Mode
+    fillRect(20, yStart, 280, boxHeight, ILI9488_LIGHTGREY);
+    ILI9488_printText("1. Speed Mode", 35, yStart + 15, ILI9488_BLACK, 2);
+
+    // Controller Mode
+    fillRect(20, yStart + boxHeight + boxGap, 280, boxHeight, ILI9488_LIGHTGREY);
+    ILI9488_printText("2. Controller", 35, yStart + boxHeight + boxGap + 15, ILI9488_BLACK, 2);
+
+    // Image Pattern
+    fillRect(20, yStart + 2 * (boxHeight + boxGap), 280, boxHeight, ILI9488_LIGHTGREY);
+    ILI9488_printText("3. Image Pattern", 35, yStart + 2 * (boxHeight + boxGap) + 15, ILI9488_BLACK, 2);
+
+    // Scramble
+    fillRect(20, yStart + 3 * (boxHeight + boxGap), 280, boxHeight, ILI9488_LIGHTGREY);
+    ILI9488_printText("4. Scramble", 35, yStart + 3 * (boxHeight + boxGap) + 15, ILI9488_BLACK, 2);
+
+
+    // Draw mini cube in top-right corner
+    drawMiniRubiksCube(ILI9488_TFTWIDTH - 3 * 11 - 10, 10, 10);
+}
+
+
 
 // Define cube face size parameters
 #define CUBE_FACE_SIZE  30          // Size of each small cube square
@@ -972,7 +1073,7 @@ void write16BitColor(uint16_t color)
 #define START_X         20          // X position to start drawing
 #define START_Y         40          // Y position to start drawing
 
-// Draw a single square with specified color and optional label
+// Draw a single square with specified color
 void drawCubeSquare(int16_t x, int16_t y, uint16_t color) {
     // Draw the colored square
     fillRect(x, y, CUBE_FACE_SIZE, CUBE_FACE_SIZE, color);
@@ -984,7 +1085,7 @@ void drawCubeSquare(int16_t x, int16_t y, uint16_t color) {
     drawLine(x, y + CUBE_FACE_SIZE, x + CUBE_FACE_SIZE, y + CUBE_FACE_SIZE, ILI9488_BLACK);
 }
 
-// Draw a complete 3x3 face with the specified color and label
+// Draw a complete 3x3 face with the specified color
 void drawCubeFace(int16_t startX, int16_t startY, uint16_t color) {
     for (int row = 0; row < FACE_DIM; row++) {
         for (int col = 0; col < FACE_DIM; col++) {
@@ -996,52 +1097,89 @@ void drawCubeFace(int16_t startX, int16_t startY, uint16_t color) {
     }
 }
 
-// Draw the entire unfolded cube (6 faces in a cross pattern)
-void drawRubiksCube() {
+// Draw the entire cube layout
+//void drawRubiksCube() {
+//	// Background Color
+//	fillScreen(ILI9488_WHITE);
+//
+//	int faceWidth = FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 1) * FACE_GAP;
+//
+//	// orange
+//	int16_t leftX = START_X;
+//	int16_t leftY = START_Y + faceWidth;
+//
+//	// green
+//	int16_t frontX = leftX + faceWidth + FACE_GAP;
+//    int16_t frontY = START_Y + faceWidth;
+//
+//    // red
+//    int16_t rightX = frontX + faceWidth + FACE_GAP;
+//    int16_t rightY = START_Y + faceWidth;
+//
+//    // blue
+//    int16_t backX = leftX + faceWidth + FACE_GAP;
+//       int16_t backY = frontY + faceWidth + faceWidth + FACE_GAP;
+//
+//    // white
+//    int16_t upX = frontX;
+//    int16_t upY = START_Y;
+//
+//    // yellow
+//    int16_t downX = frontX;
+//    int16_t downY = frontY + faceWidth + FACE_GAP;
+//
+//    // Draw each face with its color and label in new positions
+//    drawCubeFace(upX, upY, ILI9488_WHITE);
+//    drawCubeFace(leftX, leftY, ILI9488_ORANGE);
+//    drawCubeFace(frontX, frontY, ILI9488_GREEN);
+//    drawCubeFace(rightX, rightY, ILI9488_RED);
+//    drawCubeFace(backX, backY, ILI9488_BLUE);
+//    drawCubeFace(downX, downY, ILI9488_YELLOW);
+//}
+
+// Draw the entire cube layout with custom face colors
+void drawRubiksCube(uint16_t colors[6]) {
+	// Background Color
+	fillScreen(ILI9488_WHITE);
+
 	int faceWidth = FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 1) * FACE_GAP;
 
-	// orange
+	// Face positions
 	int16_t leftX = START_X;
 	int16_t leftY = START_Y + faceWidth;
 
-	// green
 	int16_t frontX = leftX + faceWidth + FACE_GAP;
-    int16_t frontY = START_Y + faceWidth;
+	int16_t frontY = START_Y + faceWidth;
 
-    // red
-    int16_t rightX = frontX + faceWidth + FACE_GAP;
-    int16_t rightY = START_Y + faceWidth;
+	int16_t rightX = frontX + faceWidth + FACE_GAP;
+	int16_t rightY = START_Y + faceWidth;
 
-    // blue
-//    int16_t backX = rightX + faceWidth + FACE_GAP;
-//    int16_t backY = START_Y + faceWidth;
-    int16_t backX = leftX + faceWidth + FACE_GAP;
-       int16_t backY = frontY + faceWidth + faceWidth + FACE_GAP;
+	int16_t backX = leftX + faceWidth + FACE_GAP;
+	int16_t backY = frontY + faceWidth + faceWidth + FACE_GAP;
 
-    // white
-    int16_t upX = frontX;
-    int16_t upY = START_Y;
+	int16_t upX = frontX;
+	int16_t upY = START_Y;
 
-    // yellow
-    int16_t downX = frontX;
-    int16_t downY = frontY + faceWidth + FACE_GAP;
+	int16_t downX = frontX;
+	int16_t downY = frontY + faceWidth + FACE_GAP;
 
-    // Draw each face with its color and label in new positions
-    drawCubeFace(upX, upY, CUBE_WHITE);
-    drawCubeFace(leftX, leftY, CUBE_ORANGE);
-    drawCubeFace(frontX, frontY, CUBE_GREEN);
-    drawCubeFace(rightX, rightY, CUBE_RED);
-    drawCubeFace(backX, backY, CUBE_BLUE);
-    drawCubeFace(downX, downY, CUBE_YELLOW);
+	// Use custom colors for each face
+	drawCubeFace(upX, upY, colors[0]);     // Up
+	drawCubeFace(leftX, leftY, colors[1]); // Left
+	drawCubeFace(frontX, frontY, colors[2]); // Front
+	drawCubeFace(rightX, rightY, colors[3]); // Right
+	drawCubeFace(backX, backY, colors[4]); // Back
+	drawCubeFace(downX, downY, colors[5]); // Down
 }
 
-// Update a specific face with new colors (for when a face rotates)
+
+// Update a specific face with new colors for when a face rotates
 void updateCubeFace(int face, uint16_t colors[FACE_DIM][FACE_DIM]) {
     int16_t startX, startY;
 
     // Determine the starting position based on the face
     // 0=Up, 1=Left, 2=Front, 3=Right, 4=Back, 5=Down
-    int faceWidth = FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 1) * FACE_GAP;
+    int faceWidth = FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 2) * FACE_GAP;
 
     switch(face) {
         case 0: // Up
@@ -1083,16 +1221,13 @@ void updateCubeFace(int face, uint16_t colors[FACE_DIM][FACE_DIM]) {
     }
 }
 
-// Example function to display the motor state
+// For Displaying Motor state
 void displayMotorState(uint8_t motorNumber, uint16_t steps, int8_t direction) {
     char buffer[32];
 
-    // Clear motor status area
-    fillRect(10, 10, 300, 40, ILI9488_BLACK);
-
     // Display motor status
     sprintf(buffer, "Motor %d: %+d steps", motorNumber, direction * steps);
-    ILI9488_printText(buffer, 10, 10, ILI9488_WHITE, ILI9488_BLACK, 2);
+    ILI9488_printText(buffer, 10, 10, ILI9488_BLACK, 2);
 
     // Show which face is rotating
     char *faceName;
@@ -1107,36 +1242,6 @@ void displayMotorState(uint8_t motorNumber, uint16_t steps, int8_t direction) {
     }
 
     sprintf(buffer, "Rotating %s face", faceName);
-    ILI9488_printText(buffer, 10, 30, ILI9488_WHITE, ILI9488_BLACK, 1);
-}
-
-// Example usage in main
-void displayCubeExample() {
-    // Initialize LCD
-    ILI9488_Init();
-
-    // Set rotation if needed
-    setRotation(1);  // Adjust based on your LCD orientation
-
-    // Clear screen
-    fillScreen(ILI9488_BLACK);
-
-    // Draw the initial cube state
-    drawRubiksCube();
-
-    // Display some motor state (sample)
-    displayMotorState(2, 90, 1);  // Motor 2 (Front face) rotating 90 steps clockwise
-
-    // Example of updating a face after rotation
-    // This would be called after a motor completes a rotation
-    uint16_t newColors[3][3] = {
-        {CUBE_GREEN, CUBE_GREEN, CUBE_GREEN},
-        {CUBE_GREEN, CUBE_GREEN, CUBE_GREEN},
-        {CUBE_GREEN, CUBE_GREEN, CUBE_GREEN}
-    };
-
-    // Update the front face with new colors
-    // In a real scenario, this would reflect the new state after rotation
-    // updateCubeFace(2, newColors);
+    ILI9488_printText(buffer, 10, 30, ILI9488_BLACK, 1);
 }
 

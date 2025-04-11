@@ -168,8 +168,8 @@ void fillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 void setRotation(uint8_t r);
 void invertDisplay(uint8_t  i);
 uint16_t color565(uint8_t r, uint8_t g, uint8_t b);
-void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint16_t bg, uint8_t size);
-void ILI9488_printText(char text[], int16_t x, int16_t y, uint16_t color, uint16_t bg, uint8_t size);
+void drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color, uint8_t size);
+void ILI9488_printText(char text[], int16_t x, int16_t y, uint16_t color, uint8_t size);
 
 void write16BitColor(uint16_t color);
 
@@ -182,9 +182,12 @@ void testLines(uint8_t color);
 // ==========================================
 // ==========================================
 
+void drawHomeScreen();
+
 void drawCubeSquare(int16_t x, int16_t y, uint16_t color);
 void drawCubeFace(int16_t startX, int16_t startY, uint16_t color);
-void drawRubiksCube();
+// void drawRubiksCube();
+void drawRubiksCube(uint16_t colors[6]);
 void updateCubeFace(int face, uint16_t colors[3][3]);
 void displayMotorState(uint8_t motorNumber, uint16_t steps, int8_t direction);
 void displayCubeExample();

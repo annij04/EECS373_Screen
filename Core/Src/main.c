@@ -90,17 +90,25 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+
   /* USER CODE BEGIN 2 */
   ILI9488_Init();
 
-//  fillScreen(ILI9488_BLUE);
-//  drawLine(0, 160, 320, 160, ILI9488_BLACK);
+  drawHomeScreen();
 
-  //  ILI9488_printText("Cheese", 50, 100, ILI9488_WHITE, ILI9488_RED, 2);
-//  ILI9488_printText("Encoder Number: ", 0, 10, ILI9488_WHITE, ILI9488_RED, 2);
-  // ILI9488_printText("Direction: ", 0, 48, ILI9488_WHITE, ILI9488_RED, 2);
+  for (volatile int i = 0; i < 9000000; ++i); //delay
 
-  drawRubiksCube();
+  // Change colors as needed
+  uint16_t colors[6] = {
+  	ILI9488_WHITE,   // Up
+  	ILI9488_ORANGE,  // Left
+  	ILI9488_GREEN,   // Front
+  	ILI9488_RED,     // Right
+  	ILI9488_BLUE,    // Back
+  	ILI9488_YELLOW   // Down
+  };
+
+   // drawRubiksCube(colors);
 
 
   /* USER CODE END 2 */
