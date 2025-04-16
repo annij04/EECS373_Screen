@@ -1073,6 +1073,22 @@ void drawHomeScreen() {
 #define START_X         20          // X position to start drawing
 #define START_Y         40          // Y position to start drawing
 
+
+#define FACE_WIDTH 	FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 1) * FACE_GAP
+
+#define LEFTX		START_X
+#define LEFTY		START_Y + FACE_WIDTH
+#define FRONTX		LEFTX + FACE_WIDTH + FACE_GAP
+#define FRONTY		START_Y + FACE_WIDTH
+#define RIGHTX		FRONTX + FACE_WIDTH + FACE_GAP
+#define RIGHTY		START_Y + FACE_WIDTH
+#define BACKX		LEFTX + FACE_WIDTH + FACE_GAP
+#define BACKY		FRONTY + FACE_WIDTH + FACE_WIDTH + FACE_GAP
+#define UPX 		FRONTX
+#define UPY		START_Y
+#define DOWNX		FRONTX
+#define DOWNY		FRONTY + FACE_WIDTH + FACE_GAP
+
 // Draw a single square with specified color
 void drawCubeSquare(int16_t x, int16_t y, uint16_t color) {
     // Draw the colored square
@@ -1086,66 +1102,24 @@ void drawCubeSquare(int16_t x, int16_t y, uint16_t color) {
 }
 
 // Draw a complete 3x3 face with the specified color
-void drawCubeFace(int16_t startX, int16_t startY, uint16_t color) {
+void drawCubeFace(int16_t startX, int16_t startY, uint16_t colors[3][3]) {
     for (int row = 0; row < FACE_DIM; row++) {
         for (int col = 0; col < FACE_DIM; col++) {
             int16_t x = startX + col * (CUBE_FACE_SIZE + FACE_GAP);
             int16_t y = startY + row * (CUBE_FACE_SIZE + FACE_GAP);
 
-            drawCubeSquare(x, y, color);
+            drawCubeSquare(x, y, colors[row][col]);
         }
     }
 }
-
-// Draw the entire cube layout
-//void drawRubiksCube() {
-//	// Background Color
-//	fillScreen(ILI9488_WHITE);
-//
-//	int faceWidth = FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 1) * FACE_GAP;
-//
-//	// orange
-//	int16_t leftX = START_X;
-//	int16_t leftY = START_Y + faceWidth;
-//
-//	// green
-//	int16_t frontX = leftX + faceWidth + FACE_GAP;
-//    int16_t frontY = START_Y + faceWidth;
-//
-//    // red
-//    int16_t rightX = frontX + faceWidth + FACE_GAP;
-//    int16_t rightY = START_Y + faceWidth;
-//
-//    // blue
-//    int16_t backX = leftX + faceWidth + FACE_GAP;
-//       int16_t backY = frontY + faceWidth + faceWidth + FACE_GAP;
-//
-//    // white
-//    int16_t upX = frontX;
-//    int16_t upY = START_Y;
-//
-//    // yellow
-//    int16_t downX = frontX;
-//    int16_t downY = frontY + faceWidth + FACE_GAP;
-//
-//    // Draw each face with its color and label in new positions
-//    drawCubeFace(upX, upY, ILI9488_WHITE);
-//    drawCubeFace(leftX, leftY, ILI9488_ORANGE);
-//    drawCubeFace(frontX, frontY, ILI9488_GREEN);
-//    drawCubeFace(rightX, rightY, ILI9488_RED);
-//    drawCubeFace(backX, backY, ILI9488_BLUE);
-//    drawCubeFace(downX, downY, ILI9488_YELLOW);
-//}
 
 // Draw the entire cube layout with custom face colors
 void drawRubiksCube(uint16_t colors[6]) {
 	// Background Color
 	fillScreen(ILI9488_WHITE);
 
-	int faceWidth = FACE_DIM * CUBE_FACE_SIZE + (FACE_DIM - 1) * FACE_GAP;
-
 	// Face positions
-	int16_t leftX = START_X;
+	/* int16_t leftX = START_X;
 	int16_t leftY = START_Y + faceWidth;
 
 	int16_t frontX = leftX + faceWidth + FACE_GAP;
@@ -1161,15 +1135,22 @@ void drawRubiksCube(uint16_t colors[6]) {
 	int16_t upY = START_Y;
 
 	int16_t downX = frontX;
-	int16_t downY = frontY + faceWidth + FACE_GAP;
+	int16_t downY = frontY + faceWidth + FACE_GAP; */
+
+	uint16_t color1[3][3] = {{colors[0], colors[0], colors[0]}, {colors[0], colors[0], colors[0]}, {colors[0], colors[0], colors[0]}};
+	uint16_t color2[3][3] = {{colors[1], colors[1], colors[1]}, {colors[1], colors[1], colors[1]}, {colors[1], colors[1], colors[1]}};
+	uint16_t color3[3][3] = {{colors[2], colors[2], colors[2]}, {colors[2], colors[2], colors[2]}, {colors[2], colors[2], colors[2]}};
+	uint16_t color4[3][3] = {{colors[3], colors[3], colors[3]}, {colors[3], colors[3], colors[3]}, {colors[3], colors[3], colors[3]}};
+	uint16_t color5[3][3] = {{colors[4], colors[4], colors[4]}, {colors[4], colors[4], colors[4]}, {colors[4], colors[4], colors[4]}};
+	uint16_t color6[3][3] = {{colors[5], colors[5], colors[5]}, {colors[5], colors[5], colors[5]}, {colors[5], colors[5], colors[5]}};
 
 	// Use custom colors for each face
-	drawCubeFace(upX, upY, colors[0]);     // Up
-	drawCubeFace(leftX, leftY, colors[1]); // Left
-	drawCubeFace(frontX, frontY, colors[2]); // Front
-	drawCubeFace(rightX, rightY, colors[3]); // Right
-	drawCubeFace(backX, backY, colors[4]); // Back
-	drawCubeFace(downX, downY, colors[5]); // Down
+	drawCubeFace(UPX, UPY, color1);     // Up
+	drawCubeFace(LEFTX, LEFTY, color2); // Left
+	drawCubeFace(FRONTX, FRONTY, color3); // Front
+	drawCubeFace(RIGHTX, RIGHTY, color4); // Right
+	drawCubeFace(BACKX, BACKY, color5); // Back
+	drawCubeFace(DOWNX, DOWNY, color6); // Down
 }
 
 
@@ -1244,4 +1225,7 @@ void displayMotorState(uint8_t motorNumber, uint16_t steps, int8_t direction) {
     sprintf(buffer, "Rotating %s face", faceName);
     ILI9488_printText(buffer, 10, 30, ILI9488_BLACK, 1);
 }
+
+
+
 
