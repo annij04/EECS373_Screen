@@ -90,33 +90,25 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
+
   /* USER CODE BEGIN 2 */
   ILI9488_Init();
 
+  drawHomeScreen();
 
-
-  drawRubiksCube();
-
-  for (volatile int i = 0; i < 50000; ++i);
-
-  uint16_t colors[3][3] = {{ILI9488_CYAN, ILI9488_CYAN, ILI9488_CYAN}, {ILI9488_CYAN, ILI9488_CYAN, ILI9488_CYAN}, {ILI9488_CYAN, ILI9488_CYAN, ILI9488_CYAN}};
-   updateCubeFace(3, colors);
-
-   for (volatile int i = 0; i < 5000000; ++i);
-
-
+  for (volatile int i = 0; i < 10000000; ++i);
 
    CubeState cube;
    defaultCube(&cube);
 
-   for (volatile int i = 0; i < 9000000; ++i);
-   rotateFace(&cube, 0, 1);
-   for (volatile int i = 0; i < 9000000; ++i);
-     rotateFace(&cube, 2, 1);
-     for (volatile int i = 0; i < 9000000; ++i);
-       rotateFace(&cube, 3, 1);
-       for (volatile int i = 0; i < 9000000; ++i);
-         rotateFace(&cube, 1, 1);
+//   for (volatile int i = 0; i < 9000000; ++i);
+//   rotateFace(&cube, 0, 1);
+//   for (volatile int i = 0; i < 9000000; ++i);
+//     rotateFace(&cube, 2, 1);
+//     for (volatile int i = 0; i < 9000000; ++i);
+//       rotateFace(&cube, 3, 1);
+//       for (volatile int i = 0; i < 9000000; ++i);
+//         rotateFace(&cube, 1, 1);
 
 
   /* USER CODE END 2 */
