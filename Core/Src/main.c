@@ -90,25 +90,33 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_SPI1_Init();
-
   /* USER CODE BEGIN 2 */
   ILI9488_Init();
 
-  drawHomeScreen();
 
-  for (volatile int i = 0; i < 9000000; ++i); //delay
 
-  // Change colors as needed
-  uint16_t colors[6] = {
-  	ILI9488_WHITE,   // Up
-  	ILI9488_ORANGE,  // Left
-  	ILI9488_GREEN,   // Front
-  	ILI9488_RED,     // Right
-  	ILI9488_BLUE,    // Back
-  	ILI9488_YELLOW   // Down
-  };
+  drawRubiksCube();
 
-   // drawRubiksCube(colors);
+  for (volatile int i = 0; i < 50000; ++i);
+
+  uint16_t colors[3][3] = {{ILI9488_CYAN, ILI9488_CYAN, ILI9488_CYAN}, {ILI9488_CYAN, ILI9488_CYAN, ILI9488_CYAN}, {ILI9488_CYAN, ILI9488_CYAN, ILI9488_CYAN}};
+   updateCubeFace(3, colors);
+
+   for (volatile int i = 0; i < 5000000; ++i);
+
+
+
+   CubeState cube;
+   defaultCube(&cube);
+
+   for (volatile int i = 0; i < 9000000; ++i);
+   rotateFace(&cube, 0, 1);
+   for (volatile int i = 0; i < 9000000; ++i);
+     rotateFace(&cube, 2, 1);
+     for (volatile int i = 0; i < 9000000; ++i);
+       rotateFace(&cube, 3, 1);
+       for (volatile int i = 0; i < 9000000; ++i);
+         rotateFace(&cube, 1, 1);
 
 
   /* USER CODE END 2 */
